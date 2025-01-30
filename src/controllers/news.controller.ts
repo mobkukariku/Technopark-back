@@ -23,7 +23,7 @@ export const postNews = async (req: Request, res: Response) => {
         });
 
         await news.save();
-        res.status(201).json({ message: "Новость успешно добавлена", news });
+        res.status(201).json({ message: "Новость успешно добавлена", });
     } catch (err) {
         console.log(err);
         res.status(500).json({ message: "Ошибка при создании новости", err });
@@ -57,7 +57,7 @@ export const getNewsById = async (req: Request, res: Response) => {
 export const deleteNewsById = async (req: Request, res: Response) => {
     try{
         const news = await News.findByIdAndDelete(req.params.id);
-        res.status(200).json({message:"Successfully deleted profile", news});
+        res.status(200).json({message:"Successfully deleted profile"});
     }catch(err){
         console.log(err);
         res.status(500).json({message: "Failed to delete profile", err});

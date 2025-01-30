@@ -1,4 +1,4 @@
-import mongoose from "mongoose";
+import mongoose, { Schema, Document } from "mongoose";
 
 export interface JoinRequest {
     name: string;
@@ -8,7 +8,7 @@ export interface JoinRequest {
     direction: "software" | "hardware";
 }
 
-const joinRequestSchema = new mongoose.Schema<JoinRequest>({
+const joinRequestSchema = new Schema<JoinRequest & Document>({
         name: {
             type: String,
             required: true,
@@ -32,3 +32,6 @@ const joinRequestSchema = new mongoose.Schema<JoinRequest>({
     },
     { timestamps: true }
 )
+const Request = mongoose.model<JoinRequest>("JoinRequest", joinRequestSchema);
+
+export default Request;
