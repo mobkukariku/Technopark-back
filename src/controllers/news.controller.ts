@@ -18,7 +18,7 @@ export const postNews = async (req: Request, res: Response) => {
             title,
             content,
             imageURL,
-            tags: tags ? tags.split(',') : ['other'],
+            tags: tags,
             authorId: id,
         });
 
@@ -33,7 +33,8 @@ export const postNews = async (req: Request, res: Response) => {
 
 export const getNews = async(req: Request, res: Response) => {
     try{
-        const { tags, data, search} = req.query;
+        const { tags, sort, search, page, limit} = req.query;
+
         let filter: any = {};
         if (tags) {
             filter.tags = { $in: (tags as string).split(",") };
@@ -44,15 +45,39 @@ export const getNews = async(req: Request, res: Response) => {
                 { content: { $regex: search, $options: "i" } }
             ];
         }
-        if (data) {
-            const startDate = new Date(data as string);
-            const endDate = new Date(startDate);
-            endDate.setHours(23, 59, 59, 999);
-
-            filter.createdAt = { $gte: startDate, $lte: endDate };
+        let sortOption = {};
+        if (sort === "newest") {
+            sortOption = { createdAt: -1 };
+        } else if (sort === "oldest") {
+            sortOption = { createdAt: 1 };
         }
-        const news = await News.find(filter);
-        res.status(200).json({ message: "Successfully filtered news", news });
+
+
+
+        const pageNumber = parseInt(page as string) || 1;
+        const pageSize = parseInt(limit as string) || 10;
+        const skip = (pageNumber - 1) * pageSize;
+
+        const news = await News.find(filter)
+            .sort(sortOption)
+            .skip(skip)
+            .limit(pageSize);
+
+        if (news.length === 0) {
+            res.status(200).json({ message: "No news found with the given criteria", news: [] });
+            return;
+        }
+
+        const totalCount = await News.countDocuments(filter);
+        const totalPages = Math.ceil(totalCount / pageSize);
+
+        res.status(200).json({
+            message: "Successfully filtered news",
+            news,
+            currentPage: pageNumber,
+            totalPages,
+            totalCount,
+        });
     }catch(err){
         console.log(err);
         res.status(500).json({message: "Failed to get profile", err});
