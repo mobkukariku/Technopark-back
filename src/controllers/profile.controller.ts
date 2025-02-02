@@ -6,7 +6,7 @@ import bcrypt from "bcrypt";
 
 export const getProfile = async (req: Request, res: Response) => {
     try{
-        const {userId} = jwt.verify(req.cookies.jwt, process.env.JWT_SECRET!) as JwtPayload;
+        const {userId} = jwt.verify(req.cookies.token, process.env.JWT_SECRET!) as JwtPayload;
         const user = await User.findById(userId).select("-password");
         if(!user){
             res.status(404).json({message: "User not found"});
@@ -18,7 +18,7 @@ export const getProfile = async (req: Request, res: Response) => {
 
 export const updateProfile = async (req: Request, res: Response) => {
     try {
-        const {userId} = jwt.verify(req.cookies.jwt, process.env.JWT_SECRET!) as JwtPayload;
+        const {userId} = jwt.verify(req.cookies.token, process.env.JWT_SECRET!) as JwtPayload;
         const user = await User.findByIdAndUpdate(userId, req.body, {new: true});
         if(!user){
             res.status(404).json({message: "User not found"});
@@ -32,7 +32,7 @@ export const updateProfile = async (req: Request, res: Response) => {
 
 export const updatePassword = async (req: Request, res: Response) => {
     try {
-        const {userId} = jwt.verify(req.cookies.jwt, process.env.JWT_SECRET!) as JwtPayload;
+        const {userId} = jwt.verify(req.cookies.token, process.env.JWT_SECRET!) as JwtPayload;
         const {oldPassword, newPassword} = req.body;
         const user = await User.findById(userId);
 

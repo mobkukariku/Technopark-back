@@ -15,9 +15,14 @@ const PORT = process.env.PORT;
 
 const app = express();
 
-app.use(cors());
+app.use(cors({
+    origin: process.env.FRONT_IP,
+    credentials: true,
+}));
 app.use(bodyParser.json());
 app.use(cookieParser());
+
+
 
 const apiRouter = express.Router();
 apiRouter.use("/auth", authRoute);

@@ -4,7 +4,7 @@ import User from "../models/user.model";
 
 export const RoleMiddleware = (reqRole: string) => {
     return async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-        const token = req.cookies.jwt;
+        const token = req.cookies.token;
         if (!token) {
             res.status(401).json({ message: "Unauthorized" });
             return;

@@ -7,8 +7,8 @@ import {postNews, getNews, getNewsById, deleteNewsById} from "../controllers/new
 const router = express.Router();
 
 router.post("/", AuthMiddleware, RoleMiddleware("admin"),uploadNewsImageMiddleware, postNews);
-router.get("/", AuthMiddleware, getNews);
-router.get("/:id", AuthMiddleware, getNewsById);
+router.get("/",  getNews);
+router.get("/:id", getNewsById);
 router.delete("/:id", AuthMiddleware, RoleMiddleware("admin"), deleteNewsById);
 
 export default router;

@@ -56,3 +56,17 @@ export const Login = async (req: Request, res: Response) => {
         });
     }
 }
+
+export const Logout = async (req: Request, res: Response) => {
+    try {
+        if (!req.cookies?.token) {
+            return res.status(401).json({ error: "Token not found" });
+        }
+
+        res.clearCookie("token", { httpOnly: true, secure: true, sameSite: "strict" });
+
+        return res.status(200).json({ message: "Вы успешно вышли из системы" });
+    } catch (error) {
+        return res.status(500).json({ message: "Ошибка при выходе", error });
+    }
+};

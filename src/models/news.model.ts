@@ -1,11 +1,13 @@
-import mongoose from "mongoose";
+import mongoose, {Schema} from "mongoose";
+import Date = mongoose.Schema.Types.Date;
 
 export interface News {
-    title: string;
-    content: string;
-    imageURL: string;
-    tags: string[];
+    title: String,
+    content: String,
+    tags: [String],
+    imageURL: String,
     authorId: mongoose.Types.ObjectId;
+    createdAt: Date;
 }
 
 const newsSchema = new mongoose.Schema<News>({
@@ -30,7 +32,10 @@ const newsSchema = new mongoose.Schema<News>({
     authorId: [{
         type: mongoose.Types.ObjectId,
         required: true,
-    }]
+    }],
+    createdAt: {
+        type: Date,
+    }
 },
     {timestamps: true},
 )

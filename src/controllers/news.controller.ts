@@ -5,7 +5,7 @@ import News from "../models/news.model";
 export const postNews = async (req: Request, res: Response) => {
     try {
         const { title, content, tags } = req.body;
-        const { userId: id } = jwt.verify(req.cookies.jwt, process.env.JWT_SECRET!) as JwtPayload;
+        const { userId: id } = jwt.verify(req.cookies.token, process.env.JWT_SECRET!) as JwtPayload;
 
         if (!req.file) {
             res.status(400).json({ error: 'Изображение не загружено' });
@@ -33,8 +33,26 @@ export const postNews = async (req: Request, res: Response) => {
 
 export const getNews = async(req: Request, res: Response) => {
     try{
-        const news = await News.find();
-        res.status(200).json({message:"Successfully getting profile", news});
+        const { tags, data, search} = req.query;
+        let filter: any = {};
+        if (tags) {
+            filter.tags = { $in: (tags as string).split(",") };
+        }
+        if (search) {
+            filter.$or = [
+                { title: { $regex: search, $options: "i" } },
+                { content: { $regex: search, $options: "i" } }
+            ];
+        }
+        if (data) {
+            const startDate = new Date(data as string);
+            const endDate = new Date(startDate);
+            endDate.setHours(23, 59, 59, 999);
+
+            filter.createdAt = { $gte: startDate, $lte: endDate };
+        }
+        const news = await News.find(filter);
+        res.status(200).json({ message: "Successfully filtered news", news });
     }catch(err){
         console.log(err);
         res.status(500).json({message: "Failed to get profile", err});
