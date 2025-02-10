@@ -1,12 +1,15 @@
 import mongoose from "mongoose";
 
 export interface User {
+    ID: string;
     name: string;
     surname: string;
     email: string;
     password: string;
     imageURL: string;
     role: "member" | "admin";
+    position: string;
+    phoneNumber: string;
 }
 
 const userSchema = new mongoose.Schema<User>({
