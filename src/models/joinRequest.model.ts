@@ -26,7 +26,7 @@ const joinRequestSchema = new Schema<JoinRequest & Document>({
             required: true,
         },
         direction: [{
-            type: ["admin", "member"],
+            type: ["software", "hardware"],
             required: true,
         }],
     },

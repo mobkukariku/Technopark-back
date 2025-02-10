@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import jwt, { JwtPayload } from "jsonwebtoken";
 import News from "../models/news.model";
+import {deleteImageFromS3} from "../services/s3Service";
 
 export const postNews = async (req: Request, res: Response) => {
     try {
@@ -14,21 +15,24 @@ export const postNews = async (req: Request, res: Response) => {
 
         const imageURL = (req.file as any).location;
 
+        const formattedTags = Array.isArray(tags) ? tags : tags.split(",").map((tag: string) => tag.trim());
+
         const news = new News({
             title,
             content,
             imageURL,
-            tags: tags,
+            tags: formattedTags,
             authorId: id,
         });
 
         await news.save();
-        res.status(201).json({ message: "Новость успешно добавлена", });
+        res.status(201).json({ message: "Новость успешно добавлена" });
     } catch (err) {
         console.log(err);
         res.status(500).json({ message: "Ошибка при создании новости", err });
     }
 };
+
 
 
 export const getNews = async(req: Request, res: Response) => {
@@ -51,7 +55,6 @@ export const getNews = async(req: Request, res: Response) => {
         } else if (sort === "oldest") {
             sortOption = { createdAt: 1 };
         }
-
 
 
         const pageNumber = parseInt(page as string) || 1;
@@ -80,7 +83,7 @@ export const getNews = async(req: Request, res: Response) => {
         });
     }catch(err){
         console.log(err);
-        res.status(500).json({message: "Failed to get profile", err});
+        res.status(500).json({message: "Failed to get news", err});
     }
 }
 
@@ -98,11 +101,21 @@ export const getNewsById = async (req: Request, res: Response) => {
 }
 
 export const deleteNewsById = async (req: Request, res: Response) => {
+    const { id } = req.params;
     try{
-        const news = await News.findByIdAndDelete(req.params.id);
-        res.status(200).json({message:"Successfully deleted profile"});
+
+        const post = await News.findById(id);
+        if(!post) {
+            res.status(404).json({message:"News Not Found"});
+            return;
+        }
+
+        await deleteImageFromS3(post.imageURL.toString());
+
+        await News.findByIdAndDelete(id);
+        res.status(200).json({message:"Successfully deleted News"});
     }catch(err){
         console.log(err);
-        res.status(500).json({message: "Failed to delete profile", err});
+        res.status(500).json({message: "Failed to delete News", err});
     }
 }

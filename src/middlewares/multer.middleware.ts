@@ -18,3 +18,7 @@ const uploadNewsImage = multer({
 });
 
 export const uploadNewsImageMiddleware = uploadNewsImage.single('image');
+
+
+export const uploadMultipleImagesMiddleware = uploadNewsImage.array('images', 5);
+

@@ -4,7 +4,7 @@ import Date = mongoose.Schema.Types.Date;
 export interface News {
     title: String,
     content: String,
-    tags: [String],
+    tags: String,
     imageURL: String,
     authorId: mongoose.Types.ObjectId;
     createdAt: Date;
@@ -24,9 +24,9 @@ const newsSchema = new mongoose.Schema<News>({
         default: 'https://assets-global.website-files.com/6275222db3d827e224b5c025/6275222db3d827ac5eb5c0cb_product-image__no-photo-p-2600.webp',
     },
     tags: [{
-        type: Array,
+        type: String,
         required: true,
-        default: ['other'],
+        default: 'other',
     }],
     authorId: [{
         type: mongoose.Types.ObjectId,
