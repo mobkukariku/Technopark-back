@@ -9,6 +9,8 @@ import profileRoute from "./routes/profile.route";
 import newsRoute from "./routes/news.route";
 import joinRequestRoute from "./routes/joinRequest.route";
 import projectRoute from "./routes/project.route";
+import memberRoute from "./routes/member.route";
+import departmentRoute from "./routes/department.route";
 
 dotenv.config();
 
@@ -31,6 +33,8 @@ apiRouter.use("/profile", profileRoute);
 apiRouter.use("/news", newsRoute);
 apiRouter.use("/requests", joinRequestRoute);
 apiRouter.use("/projects", projectRoute);
+apiRouter.use("/members", memberRoute);
+apiRouter.use("/departments", departmentRoute);
 
 app.use("/api", apiRouter);
 
