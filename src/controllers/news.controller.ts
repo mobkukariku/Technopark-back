@@ -62,6 +62,7 @@ export const getNews = async(req: Request, res: Response) => {
         const skip = (pageNumber - 1) * pageSize;
 
         const news = await News.find(filter)
+            .select("-authorId")
             .sort(sortOption)
             .skip(skip)
             .limit(pageSize);
@@ -89,7 +90,7 @@ export const getNews = async(req: Request, res: Response) => {
 
 export const getNewsById = async (req: Request, res: Response) => {
     try{
-        const news = await News.findById(req.params.id);
+        const news = await News.findById(req.params.id).select("-authorId");
         if(!news) {
             res.status(404).json({message:"Not Found",});
             return;
@@ -97,6 +98,22 @@ export const getNewsById = async (req: Request, res: Response) => {
         res.status(200).json({message:"Successfully getting profile", news});
     }catch(err){
         console.log(err);
+        res.status(500).json({message: "Failed to get news", err});
+    }
+}
+
+export const getNewsSidebar = async (req: Request, res: Response) => {
+    try{
+        const { exceptId } = req.query;
+        const news = await News.find({_id:{$ne: exceptId}}).limit(3).select("title createdAt content");
+        if(!news) {
+            res.status(404).json({message:"Not Found",});
+            return;
+        }
+        res.status(200).json(news);
+    }catch(err){
+        console.log(err);
+        res.status(500).json({message: "Failed to get news", err});
     }
 }
 
