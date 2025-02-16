@@ -17,8 +17,21 @@ const uploadNewsImage = multer({
     limits: { fileSize: 5 * 1024 * 1024 },
 });
 
+const uploadProjectImage = multer({
+    storage: multerS3({
+        s3,
+        bucket: process.env.AWS_BUCKET_NAME!,
+        acl: 'public-read',
+        key: (req, file, cb) => {
+            cb(null, `projects/${Date.now()}_${file.originalname}`);
+        },
+    }),
+    limits: { fileSize: 5 * 1024 * 1024 },
+});
+
+
 export const uploadNewsImageMiddleware = uploadNewsImage.single('image');
 
 
-export const uploadMultipleImagesMiddleware = uploadNewsImage.array('images', 5);
+export const uploadMultipleImagesMiddleware = uploadProjectImage.array('images', 5);
 

@@ -44,10 +44,14 @@ export const getNews = async(req: Request, res: Response) => {
             filter.tags = { $in: (tags as string).split(",") };
         }
         if (search) {
-            filter.$or = [
-                { title: { $regex: search, $options: "i" } },
-                { content: { $regex: search, $options: "i" } }
-            ];
+            const searchWords = (search as string).trim().split(/\s+/);
+
+            filter.$and = searchWords.map(word => ({
+                $or: [
+                    { title: { $regex: search, $options: "i" } },
+                    { content: { $regex: search, $options: "i" } }
+                ]
+            }));
         }
         let sortOption = {};
         if (sort === "newest") {
@@ -105,7 +109,7 @@ export const getNewsById = async (req: Request, res: Response) => {
 export const getNewsSidebar = async (req: Request, res: Response) => {
     try{
         const { exceptId } = req.query;
-        const news = await News.find({_id:{$ne: exceptId}}).limit(3).select("title createdAt content");
+        const news = await News.find({_id:{$ne: exceptId}}).sort({createdAt: -1}).limit(3).select("title createdAt content");
         if(!news) {
             res.status(404).json({message:"Not Found",});
             return;

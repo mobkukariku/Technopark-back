@@ -22,16 +22,72 @@ export const createMember = async (req: Request, res: Response) => {
 
 
 export const getAllMembers = async (req: Request, res: Response) => {
-    try{
-        const members = await Member.find().populate({
+    try {
+        const { search } = req.query;
+
+        let filter: any = {};
+
+        if (search) {
+            const searchWords = (search as string).trim().split(/\s+/); // Разбиваем по пробелам
+
+            filter.$and = searchWords.map(word => ({
+                $or: [
+                    { studentId: { $regex: word, $options: "i" } },
+                    { name: { $regex: word, $options: "i" } },
+                    { surname: { $regex: word, $options: "i" } },
+                    { email: { $regex: word, $options: "i" } },
+                    { position: { $regex: word, $options: "i" } },
+                    { telegram: { $regex: word, $options: "i" } },
+                    { linkedinURL: { $regex: word, $options: "i" } },
+                    { githubURL: { $regex: word, $options: "i" } },
+                ]
+            }));
+        }
+
+        const members = await Member.find(filter).populate({
             path: "departmentId",
             select: "name headId"
+        });
+
+        res.status(200).json(members);
+    } catch (error) {
+        res.status(500).json({ message: error });
+    }
+};
+
+export const getAllMembersToUsers = async (req: Request, res: Response) => {
+    try{
+        const { search } = req.query;
+
+        let filter: any = {};
+
+        if (search) {
+            const searchWords = (search as string).trim().split(/\s+/); // Разбиваем по пробелам
+
+            filter.$and = searchWords.map(word => ({
+                $or: [
+                    { studentId: { $regex: word, $options: "i" } },
+                    { name: { $regex: word, $options: "i" } },
+                    { surname: { $regex: word, $options: "i" } },
+                    { email: { $regex: word, $options: "i" } },
+                    { position: { $regex: word, $options: "i" } },
+                    { telegram: { $regex: word, $options: "i" } },
+                    { linkedinURL: { $regex: word, $options: "i" } },
+                    { githubURL: { $regex: word, $options: "i" } },
+                ]
+            }));
+        }
+
+        const members = await Member.find(filter).select("name surname position").populate({
+            path: "departmentId",
+            select: "name"
         });
         res.status(200).json(members);
     }catch(error){
         res.status(500).json({ message: error });
     }
 }
+
 
 
 export const getMemberById = async (req: Request, res: Response) => {

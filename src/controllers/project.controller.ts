@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import jwt, {JwtPayload} from "jsonwebtoken";
 import Project from "../models/project.model";
 import {getQueryOptions} from "../utils/query.helper";
+import {deleteImageFromS3} from "../services/s3Service";
 
 export const CreateProject = async (req: Request, res: Response) => {
     try {
@@ -14,6 +15,9 @@ export const CreateProject = async (req: Request, res: Response) => {
             res.status(400).json({ error: "Изображения не загружены" });
             return
         }
+
+        console.log(req.files);
+
 
 
         const imageURLs = (req.files as Express.MulterS3.File[]).map(file => file.location);
@@ -37,8 +41,8 @@ export const CreateProject = async (req: Request, res: Response) => {
 
 export const getProjects = async (req: Request, res: Response) => {
     try {
-        const { direction } = req.query;
-        const { filter, sortOption, skip, pageSize, pageNumber } = getQueryOptions(req.query);
+        const { direction, } = req.query;
+        const {  filter, sortOption, skip, pageSize, pageNumber,  } = getQueryOptions(req.query);
 
         if (direction) {
             filter.direction = direction;
@@ -86,5 +90,25 @@ export const getProjectById = async (req: Request, res: Response) => {
     }catch(err){
         console.error(err);
         res.status(500).json({ message: "Failed to get projects", err });
+    }
+}
+
+export const deleteProjectById = async (req: Request, res: Response) => {
+    const { id } = req.params;
+
+    try{
+        const project = await Project.findById(id);
+        if (!project) {
+            res.status(404).json({message: "No project found with the given criteria",})
+            return;
+        }
+
+        await Promise.all(project.imageURLs.map(deleteImageFromS3));
+
+        await Project.findByIdAndDelete(id);
+        res.status(200).json({message: "Successfully deleted project"});
+    }catch (err){
+        console.error(err);
+        res.status(500).json({ message: "Failed to delete project", err });
     }
 }

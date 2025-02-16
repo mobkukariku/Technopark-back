@@ -3,10 +3,14 @@ export const getQueryOptions = (query: any) => {
 
     let filter: any = {};
     if (search) {
-        filter.$or = [
-            { title: { $regex: search, $options: "i" } },
-            { description: { $regex: search, $options: "i" } }
-        ];
+        const searchWords = (search as string).trim().split(/\s+/);
+
+        filter.$and = searchWords.map(word => ({
+            $or: [
+                { title: { $regex: search, $options: "i" }},
+                { description: { $regex: search, $options: "i" }},
+            ]
+        }));
     }
 
     let sortOption = {};
@@ -20,5 +24,5 @@ export const getQueryOptions = (query: any) => {
     const pageSize = parseInt(limit as string) || 10;
     const skip = (pageNumber - 1) * pageSize;
 
-    return { filter, sortOption, skip, pageSize, pageNumber };
+    return { filter, sortOption, skip, pageSize, pageNumber,  };
 };

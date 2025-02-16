@@ -8,6 +8,7 @@ export interface Project {
     authorId: string;
 }
 
+
 export const ProjectSchema = new mongoose.Schema<Project>({
     title: {
         type: String,
@@ -18,7 +19,7 @@ export const ProjectSchema = new mongoose.Schema<Project>({
         required: true,
     },
     imageURLs: [{
-        type: Array,
+        type: String,
         required: true,
     }],
     direction: {
